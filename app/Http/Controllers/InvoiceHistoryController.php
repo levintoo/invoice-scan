@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\InvoiceDocument;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -33,6 +34,21 @@ class InvoiceHistoryController extends Controller
         return Inertia::render('history', [
             'invoices' => $invoices,
         ]);
+    }
+
+    /**
+     * Permanently delete an invoice document.
+     */
+    public function destroy(string $id): RedirectResponse
+    {
+        /** @var InvoiceDocument|null $doc */
+        $doc = InvoiceDocument::query()->find($id);
+
+        if ($doc) {
+            $doc->delete();
+        }
+
+        return redirect()->route('history');
     }
 }
 

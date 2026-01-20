@@ -30,14 +30,6 @@ const mainNavItems: NavItem[] = [
     },
 ];
 
-const managementNavItems: NavItem[] = [
-    {
-        title: 'Templates',
-        href: templates(),
-        icon: FileStack,
-    },
-];
-
 export function AppSidebar() {
     return (
         <Sidebar collapsible="icon" variant="sidebar">
@@ -55,7 +47,6 @@ export function AppSidebar() {
 
             <SidebarContent>
                 <NavMain items={mainNavItems} label="Navigation" />
-                <NavMain items={managementNavItems} label="Management" />
             </SidebarContent>
 
             <SidebarFooter>

@@ -124,15 +124,7 @@ export default function Upload() {
                     </CardHeader>
                     <CardContent>
                         <form className="mt-2 space-y-4" onSubmit={onSubmit}>
-                            <Alert className="border-foreground/20">
-                                <Info className="size-4" />
-                                <AlertTitle>Processing approach</AlertTitle>
-                                <AlertDescription>
-                                    Embedded text is extracted first. OCR is only used
-                                    when the document is scanned or provided as an
-                                    image.
-                                </AlertDescription>
-                            </Alert>
+                            {/* Processing approach banner intentionally hidden for now */}
                             {received && (
                                 <Alert>
                                     <AlertTitle>Received</AlertTitle>

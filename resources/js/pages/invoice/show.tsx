@@ -148,18 +148,6 @@ export default function InvoiceShow() {
     const sourceLabel = invoice.source ? invoice.source.toUpperCase() : null;
 
     const summaryFields = {
-        invoiceNumber: {
-            label: 'Invoice Number',
-            value: invoice.invoiceNumber && invoice.invoiceNumber !== 'PENDING'
-                ? invoice.invoiceNumber
-                : null,
-            confidence: null,
-            status:
-                invoice.invoiceNumber && invoice.invoiceNumber !== 'PENDING'
-                    ? 'detected'
-                    : 'missing',
-            available: invoice.invoiceNumber !== 'PENDING',
-        } satisfies SummaryField,
         invoiceDate: {
             label: 'Invoice Date',
             value: invoice.invoiceDate,
@@ -176,16 +164,6 @@ export default function InvoiceShow() {
             confidence: null,
             status: invoice.totalAmount !== null ? 'detected' : 'missing',
             available: invoice.totalAmount !== null,
-        } satisfies SummaryField,
-        tax: {
-            label: 'Tax / VAT',
-            value:
-                invoice.taxAmount !== null
-                    ? `$${Number(invoice.taxAmount).toFixed(2)}`
-                    : null,
-            confidence: null,
-            status: invoice.taxAmount !== null ? 'detected' : 'missing',
-            available: invoice.taxAmount !== null,
         } satisfies SummaryField,
     };
 
@@ -254,7 +232,6 @@ export default function InvoiceShow() {
                         <section className="space-y-3">
                             <p className="text-sm font-semibold">Invoice summary</p>
                             <div className="grid gap-3 md:grid-cols-2">
-                                <SummaryFieldCard field={summaryFields.invoiceNumber} />
                                 <SummaryFieldCard field={summaryFields.invoiceDate} />
                             </div>
                             <div className="grid gap-3 md:grid-cols-2">
@@ -262,7 +239,6 @@ export default function InvoiceShow() {
                                     field={summaryFields.total}
                                     emphasis="total"
                                 />
-                                <SummaryFieldCard field={summaryFields.tax} />
                             </div>
                         </section>
 

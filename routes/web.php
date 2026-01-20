@@ -26,6 +26,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('invoice/{id}', [InvoiceShowController::class, 'show'])
         ->name('invoice.show');
 
+    Route::delete('invoice/{id}', [InvoiceHistoryController::class, 'destroy'])
+        ->name('invoice.destroy');
+
     Route::get('templates', function () {
         return Inertia::render('templates');
     })->name('templates');

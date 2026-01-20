@@ -1,5 +1,5 @@
 import { Head, router, usePage } from '@inertiajs/react';
-import { ArrowUpDown } from 'lucide-react';
+import { ArrowUpDown, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -133,6 +133,9 @@ export default function History() {
                                         <TableHead>Date Processed</TableHead>
                                         <TableHead>Source</TableHead>
                                         <TableHead>Status</TableHead>
+                                        <TableHead className="w-0 text-right">
+                                            <span className="sr-only">Actions</span>
+                                        </TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -167,6 +170,28 @@ export default function History() {
                                                 </TableCell>
                                                 <TableCell>
                                                     <StatusBadge status={row.status} />
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <Button
+                                                        type="button"
+                                                        size="icon"
+                                                        variant="ghost"
+                                                        className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            router.delete(
+                                                                `/invoice/${row.id}`,
+                                                                {
+                                                                    preserveScroll: true,
+                                                                },
+                                                            );
+                                                        }}
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                        <span className="sr-only">
+                                                            Delete
+                                                        </span>
+                                                    </Button>
                                                 </TableCell>
                                             </TableRow>
                                         ))
