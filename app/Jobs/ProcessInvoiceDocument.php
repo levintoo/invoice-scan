@@ -28,32 +28,27 @@ class ProcessInvoiceDocument implements ShouldQueue
 
     public function handle(ProcessInvoiceWithOcrSpace $processor): void
     {
-        /** @var InvoiceDocument|null $doc */
-        $doc = InvoiceDocument::query()->find($this->invoiceDocumentId);
-        if (! $doc) {
+        /** @var InvoiceDocument|null $document */
+        $document = InvoiceDocument::query()->find($this->invoiceDocumentId);
+        if (! $document) {
             return;
         }
 
-        $doc->status = InvoiceStatus::Processing;
-        $doc->save();
+        $document->status = InvoiceStatus::Processing;
+        $document->save();
 
         try {
-            // If you store locally, this path should exist.
-            // When you implement the OCR action, you'll likely want to read the file
-            // from storage and pass the UploadedFile / file contents as needed.
-            if ($doc->file_path && Storage::exists($doc->file_path)) {
-                // TODO: Replace this with actual OCR processing output.
-                // $processor->handle(...);
-            }
+            if ($document->file_path && Storage::exists($document->file_path)) {
+                $processor->handle($document);
+            } else {
+                $document->status = InvoiceStatus::Failed;
+                $document->save();
 
-            // Temporary demo behavior: mark as processed.
-            $doc->status = InvoiceStatus::Processed;
-            $doc->date_processed = now();
-            $doc->source = $doc->source ?? 'ocr';
-            $doc->save();
+                return;
+            }
         } catch (\Throwable $e) {
-            $doc->status = InvoiceStatus::Failed;
-            $doc->save();
+            $document->status = InvoiceStatus::Failed;
+            $document->save();
 
             throw $e;
         }
