@@ -39,7 +39,6 @@ type HistoryRow = {
     filename: string;
     dateProcessed: string;
     source: InvoiceSource;
-    detectedTotal: string;
     status: InvoiceStatus;
 };
 
@@ -133,15 +132,6 @@ export default function History() {
                                         <TableHead>Filename</TableHead>
                                         <TableHead>Date Processed</TableHead>
                                         <TableHead>Source</TableHead>
-                                        <TableHead>
-                                            <button
-                                                type="button"
-                                                className="inline-flex items-center gap-1 rounded-sm text-left font-medium text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                                            >
-                                                Detected Total
-                                                <ArrowUpDown className="size-3 opacity-70" />
-                                            </button>
-                                        </TableHead>
                                         <TableHead>Status</TableHead>
                                     </TableRow>
                                 </TableHeader>
@@ -149,7 +139,7 @@ export default function History() {
                                     {rows.length === 0 ? (
                                         <TableRow>
                                             <TableCell
-                                                colSpan={5}
+                                                colSpan={4}
                                                 className="py-8 text-center text-muted-foreground"
                                             >
                                                 No matches.
@@ -175,7 +165,6 @@ export default function History() {
                                                             : 'Text'}
                                                     </Badge>
                                                 </TableCell>
-                                                <TableCell>{row.detectedTotal}</TableCell>
                                                 <TableCell>
                                                     <StatusBadge status={row.status} />
                                                 </TableCell>

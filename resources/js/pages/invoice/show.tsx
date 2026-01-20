@@ -222,7 +222,7 @@ export default function InvoiceShow() {
                         <div className="grid gap-4 pb-4 pt-2 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
                     {/* Left: raw document only */}
                     <div className="space-y-2">
-                        <div className="relative aspect-4/3 w-full overflow-hidden rounded-md border border-dashed border-muted-foreground/40 bg-muted">
+                        <div className="relative aspect-[3/4] w-full overflow-hidden rounded-md border border-dashed border-muted-foreground/40 bg-muted">
                             {previewRef.current.url ? (
                                 previewRef.current.filename
                                     .toLowerCase()
