@@ -1,4 +1,4 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { ArrowUpDown } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
@@ -31,13 +31,6 @@ import AppLayout from '@/layouts/app-layout';
 import { history } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'History',
-        href: history().url,
-    },
-];
-
 type InvoiceStatus = 'processed' | 'reviewed' | 'processing' | 'failed';
 type InvoiceSource = 'ocr' | 'text';
 
@@ -50,38 +43,14 @@ type HistoryRow = {
     status: InvoiceStatus;
 };
 
-const MOCK_ROWS: HistoryRow[] = [
+type PageProps = {
+    invoices: HistoryRow[];
+};
+
+const breadcrumbs: BreadcrumbItem[] = [
     {
-        id: '1',
-        filename: 'amazon-in.pdf',
-        dateProcessed: '2026-01-20 10:41',
-        source: 'text',
-        detectedTotal: '$1,284.33',
-        status: 'processed',
-    },
-    {
-        id: '2',
-        filename: 'east-repair.png',
-        dateProcessed: '2026-01-20 10:32',
-        source: 'ocr',
-        detectedTotal: '$438.00',
-        status: 'reviewed',
-    },
-    {
-        id: '3',
-        filename: 'scan-2026-01-19.pdf',
-        dateProcessed: '2026-01-19 18:12',
-        source: 'ocr',
-        detectedTotal: '$97.20',
-        status: 'processing',
-    },
-    {
-        id: '4',
-        filename: 'vendor-invoice-unknown.png',
-        dateProcessed: '2026-01-19 16:02',
-        source: 'ocr',
-        detectedTotal: '—',
-        status: 'failed',
+        title: 'History',
+        href: history().url,
     },
 ];
 
@@ -93,6 +62,8 @@ function StatusBadge({ status }: { status: InvoiceStatus }) {
 }
 
 export default function History() {
+    const page = usePage<PageProps>();
+    const initialRows = page.props.invoices ?? [];
     const [query, setQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState<InvoiceStatus | 'all'>(
         'all',
@@ -100,13 +71,13 @@ export default function History() {
 
     const rows = useMemo(() => {
         const q = query.trim().toLowerCase();
-        return MOCK_ROWS.filter((row) => {
+        return initialRows.filter((row) => {
             const matchesQuery = !q || row.filename.toLowerCase().includes(q);
             const matchesStatus =
                 statusFilter === 'all' ? true : row.status === statusFilter;
             return matchesQuery && matchesStatus;
         });
-    }, [query, statusFilter]);
+    }, [initialRows, query, statusFilter]);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
