@@ -280,9 +280,10 @@ export default function InvoiceShow() {
                         </div>
                         {isProcessing ? (
                             <Badge
-                                variant="outline"
-                                className="px-2 py-1 text-[11px] font-medium"
+                                variant="secondary"
+                                className="inline-flex items-center gap-1 px-2 py-1 text-[11px] font-medium"
                             >
+                                <span className="inline-block size-1.5 rounded-full bg-amber-500" />
                                 {invoice.stage === 'pending' ? 'Queued' : 'Processing'}
                                 {sourceLabel ? ` · ${sourceLabel}` : ''}
                             </Badge>
