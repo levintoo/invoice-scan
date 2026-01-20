@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
+use App\Http\Controllers\InvoiceUploadController;
 
 Route::get('/', function () {
     return Inertia::render('welcome', [
@@ -14,6 +15,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('upload', function () {
         return Inertia::render('upload');
     })->name('upload');
+
+    Route::post('upload', [InvoiceUploadController::class, 'store'])->name('upload.store');
 
     Route::get('history', function () {
         return Inertia::render('history');
