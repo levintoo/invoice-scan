@@ -81,7 +81,7 @@ export default function Templates() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Templates" />
-            <div className="mx-auto w-full p-4">
+            <div className="mx-auto w-full">
                 <Card className="border-none shadow-none">
                     <CardHeader className="space-y-2">
                         <CardTitle>Templates</CardTitle>

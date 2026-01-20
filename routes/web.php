@@ -22,6 +22,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('history');
     })->name('history');
 
+    Route::get('invoice/{id}', function (string $id) {
+        return Inertia::render('invoice/show', [
+            'id' => $id,
+        ]);
+    })->name('invoice.show');
+
     Route::get('templates', function () {
         return Inertia::render('templates');
     })->name('templates');
