@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "26377ff0849a20e82a7a01d06ea920b5",
+    "content-hash": "3d0270d68c265fa7925d219c015afc56",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -189,6 +189,86 @@
                 }
             ],
             "time": "2024-02-09T16:56:22+00:00"
+        },
+        {
+            "name": "cdsmths/laravel-ocr-space",
+            "version": "1.0.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/cdsmths/laravel-ocr-space.git",
+                "reference": "a5dbbada6a6b455b6116e5a5caf2618068b77336"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/cdsmths/laravel-ocr-space/zipball/a5dbbada6a6b455b6116e5a5caf2618068b77336",
+                "reference": "a5dbbada6a6b455b6116e5a5caf2618068b77336",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "laravel/laravel": "^11.5",
+                "laravel/pint": "^1.18.3",
+                "mockery/mockery": "^1.6",
+                "nunomaduro/collision": "^8.5.0||^7.10.0",
+                "orchestra/testbench": "^9.9.0||^8.22.0",
+                "pestphp/pest": "^3.7.1",
+                "pestphp/pest-plugin-arch": "^3.0",
+                "pestphp/pest-plugin-laravel": "^3.0",
+                "pestphp/pest-plugin-type-coverage": "^3.2.3",
+                "phpstan/phpstan": "^1.12.13",
+                "rector/rector": "^1.2.10",
+                "spatie/laravel-ray": "^1.39"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "OcrSpace": "Codesmiths\\LaravelOcrSpace\\Facades\\LaravelOcrSpace"
+                    },
+                    "providers": [
+                        "Codesmiths\\LaravelOcrSpace\\LaravelOcrSpaceServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Codesmiths\\LaravelOcrSpace\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Thomas van der Westen",
+                    "email": "info@cdsmths.nl",
+                    "role": "Developer"
+                }
+            ],
+            "description": "OCR PDF's and images with the OCR.Space API from Laravel",
+            "homepage": "https://github.com/cdsmths/laravel-ocr-space",
+            "keywords": [
+                "Codesmiths",
+                "OCR",
+                "Thomas van der Westen",
+                "laravel",
+                "laravel-ocr-space",
+                "ocr.space"
+            ],
+            "support": {
+                "issues": "https://github.com/cdsmths/laravel-ocr-space/issues",
+                "source": "https://github.com/cdsmths/laravel-ocr-space/tree/v1.0.6"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/cdsmths",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-02-02T15:44:59+00:00"
         },
         {
             "name": "dasprid/enum",
