@@ -11,9 +11,17 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
+    Route::get('upload', function () {
+        return Inertia::render('upload');
+    })->name('upload');
+
+    Route::get('history', function () {
+        return Inertia::render('history');
+    })->name('history');
+
+    Route::get('templates', function () {
+        return Inertia::render('templates');
+    })->name('templates');
 });
 
 require __DIR__.'/settings.php';
