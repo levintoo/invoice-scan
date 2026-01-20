@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\InvoiceHistoryController;
+use App\Http\Controllers\InvoiceShowController;
 use App\Http\Controllers\InvoiceUploadController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -22,11 +23,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('history', [InvoiceHistoryController::class, 'index'])
         ->name('history');
 
-    Route::get('invoice/{id}', function (string $id) {
-        return Inertia::render('invoice/show', [
-            'id' => $id,
-        ]);
-    })->name('invoice.show');
+    Route::get('invoice/{id}', [InvoiceShowController::class, 'show'])
+        ->name('invoice.show');
 
     Route::get('templates', function () {
         return Inertia::render('templates');

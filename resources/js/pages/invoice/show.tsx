@@ -1,7 +1,6 @@
-import { Head, usePage } from '@inertiajs/react';
+import { Head, router, usePage, usePoll } from '@inertiajs/react';
 import { CheckCircle2, CircleSlash2, HelpCircle } from 'lucide-react';
-import { useEffect, useState } from 'react';
-
+import { useRef } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,77 +17,30 @@ import { history } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 
 type PageProps = {
-    id: string;
+    invoice: {
+        id: string;
+        filename: string;
+        filePath: string | null;
+        fileUrl: string | null;
+        status: 'processing' | 'processed' | 'reviewed' | 'failed' | null;
+        source: 'text' | 'ocr' | null;
+        dateProcessed: string | null;
+        invoiceNumber: string;
+        invoiceDate: string | null;
+        totalAmount: string | number | null;
+        taxAmount: string | number | null;
+    };
 };
-
-type ProcessingStage = 'pending' | 'text' | 'ocr' | 'fields' | 'complete';
 
 type FieldStatus = 'detected' | 'low' | 'missing';
 
-type SummaryFieldKey =
-    | 'invoiceNumber'
-    | 'invoiceDate'
-    | 'currency'
-    | 'total'
-    | 'subtotal'
-    | 'tax';
-
 type SummaryField = {
-    key: SummaryFieldKey;
     label: string;
     value: string | null;
     confidence: number | null;
     status: FieldStatus;
     available: boolean;
 };
-
-type LineItem = {
-    id: string;
-    description: string;
-    quantity: string;
-    unitPrice: string;
-    total: string;
-};
-
-type Metadata = {
-    source: 'text' | 'ocr';
-    ocrLanguage: string | null;
-    durationSeconds: number | null;
-    pageCount: number | null;
-    warnings: string[];
-};
-
-type InvoiceState = {
-    stage: ProcessingStage;
-    summary: Record<SummaryFieldKey, SummaryField>;
-    lineItems: LineItem[] | null;
-    metadata: Metadata | null;
-};
-
-function initInvoiceState(): InvoiceState {
-    const baseField = (key: SummaryFieldKey, label: string): SummaryField => ({
-        key,
-        label,
-        value: null,
-        confidence: null,
-        status: 'missing',
-        available: false,
-    });
-
-    return {
-        stage: 'pending',
-        summary: {
-            invoiceNumber: baseField('invoiceNumber', 'Invoice Number'),
-            invoiceDate: baseField('invoiceDate', 'Invoice Date'),
-            currency: baseField('currency', 'Currency'),
-            total: baseField('total', 'Total Amount'),
-            subtotal: baseField('subtotal', 'Subtotal'),
-            tax: baseField('tax', 'Tax / VAT'),
-        },
-        lineItems: null,
-        metadata: null,
-    };
-}
 
 function fieldStatusIcon(status: FieldStatus) {
     if (status === 'detected') {
@@ -131,7 +83,7 @@ function SummaryFieldCard({
                     )}
                 </span>
             </div>
-            <div className="min-h-[1.5rem]">
+            <div className="min-h-6">
                 {hasValue ? (
                     <span
                         className={
@@ -153,120 +105,93 @@ function SummaryFieldCard({
 
 export default function InvoiceShow() {
     const page = usePage<PageProps>();
-    const id = page.props.id;
-    const [invoice, setInvoice] = useState<InvoiceState>(() => initInvoiceState());
+    const invoice = page.props.invoice;
 
-    // Demo polling (every 3s) — replace with real backend polling.
-    useEffect(() => {
-        const started = Date.now();
+    // Keep a stable preview URL/filename so the iframe/img is not reloaded on each poll.
+    const previewRef = useRef<{ url: string | null; filename: string }>({
+        url: invoice.fileUrl,
+        filename: invoice.filename,
+    });
 
-        const interval = setInterval(() => {
-            const elapsed = Date.now() - started;
-            setInvoice((prev) => {
-                if (prev.stage === 'complete') return prev;
+    if (invoice.fileUrl && !previewRef.current.url) {
+        previewRef.current = {
+            url: invoice.fileUrl,
+            filename: invoice.filename,
+        };
+    }
 
-                if (elapsed < 3000) return { ...prev, stage: 'text' };
-
-                if (elapsed < 6000) {
-                    return {
-                        ...prev,
-                        stage: 'ocr',
-                        metadata: {
-                            source: 'text',
-                            ocrLanguage: null,
-                            durationSeconds: null,
-                            pageCount: null,
-                            warnings: [],
-                        },
-                    };
+    // Smart Inertia polling: poll only the `invoice` prop every 3s while processing.
+    // Automatically stops when the invoice status is no longer "processing".
+    const { stop } = usePoll(
+        3000,
+        {
+            only: ['invoice'],
+            preserveScroll: true,
+            onSuccess: (newPage) => {
+                const next = (newPage.props as PageProps).invoice;
+                if (next.status !== 'processing') {
+                    stop();
                 }
-
-                if (elapsed < 9000) {
-                    const summary = { ...prev.summary };
-                    summary.invoiceNumber = {
-                        ...summary.invoiceNumber,
-                        value: 'INV-2048',
-                        confidence: 96,
-                        status: 'detected',
-                        available: true,
-                    };
-                    summary.invoiceDate = {
-                        ...summary.invoiceDate,
-                        value: '2026-01-19',
-                        confidence: 91,
-                        status: 'detected',
-                        available: true,
-                    };
-                    summary.currency = {
-                        ...summary.currency,
-                        value: 'USD',
-                        confidence: 88,
-                        status: 'detected',
-                        available: true,
-                    };
-                    summary.total = {
-                        ...summary.total,
-                        value: '$1,284.33',
-                        confidence: 93,
-                        status: 'detected',
-                        available: true,
-                    };
-                    summary.subtotal = {
-                        ...summary.subtotal,
-                        value: '$1,070.27',
-                        confidence: 87,
-                        status: 'detected',
-                        available: true,
-                    };
-                    summary.tax = {
-                        ...summary.tax,
-                        value: '$214.06',
-                        confidence: 72,
-                        status: 'low',
-                        available: true,
-                    };
-                    return { ...prev, stage: 'fields', summary };
-                }
-
-                clearInterval(interval);
-                return {
-                    ...prev,
-                    stage: 'complete',
-                    lineItems: [
-                        {
-                            id: '1',
-                            description: 'Cloud compute usage — January',
-                            quantity: '1',
-                            unitPrice: '$1,070.27',
-                            total: '$1,070.27',
-                        },
-                    ],
-                    metadata: {
-                        source: 'text',
-                        ocrLanguage: null,
-                        durationSeconds: 11,
-                        pageCount: 2,
-                        warnings: ['Tax amount inferred from line totals.'],
-                    },
-                };
-            });
-        }, 3000);
-
-        return () => clearInterval(interval);
-    }, [id]);
+            },
+        },
+        {
+            autoStart: invoice.status === 'processing',
+        },
+    );
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'History', href: history().url },
-        { title: `Invoice ${id}`, href: `/invoice/${id}` },
+        { title: `Invoice ${invoice.id}`, href: `/invoice/${invoice.id}` },
     ];
 
-    const isProcessing = invoice.stage !== 'complete';
-    const sourceLabel =
-        invoice.metadata?.source === 'ocr' || invoice.stage === 'ocr' ? 'OCR' : 'Text';
+    const isProcessing = invoice.status === 'processing';
+    const sourceLabel = invoice.source ? invoice.source.toUpperCase() : null;
+
+    const summaryFields = {
+        invoiceNumber: {
+            label: 'Invoice Number',
+            value: invoice.invoiceNumber && invoice.invoiceNumber !== 'PENDING'
+                ? invoice.invoiceNumber
+                : null,
+            confidence: null,
+            status:
+                invoice.invoiceNumber && invoice.invoiceNumber !== 'PENDING'
+                    ? 'detected'
+                    : 'missing',
+            available: invoice.invoiceNumber !== 'PENDING',
+        } satisfies SummaryField,
+        invoiceDate: {
+            label: 'Invoice Date',
+            value: invoice.invoiceDate,
+            confidence: null,
+            status: invoice.invoiceDate ? 'detected' : 'missing',
+            available: invoice.invoiceDate !== null,
+        } satisfies SummaryField,
+        total: {
+            label: 'Total Amount',
+            value:
+                invoice.totalAmount !== null
+                    ? `$${Number(invoice.totalAmount).toFixed(2)}`
+                    : null,
+            confidence: null,
+            status: invoice.totalAmount !== null ? 'detected' : 'missing',
+            available: invoice.totalAmount !== null,
+        } satisfies SummaryField,
+        tax: {
+            label: 'Tax / VAT',
+            value:
+                invoice.taxAmount !== null
+                    ? `$${Number(invoice.taxAmount).toFixed(2)}`
+                    : null,
+            confidence: null,
+            status: invoice.taxAmount !== null ? 'detected' : 'missing',
+            available: invoice.taxAmount !== null,
+        } satisfies SummaryField,
+    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={`Invoice ${id}`} />
+            <Head title={`Invoice ${invoice.id}`} />
 
             <div className="mx-auto w-full">
                 <Card className="border-none shadow-none">
@@ -284,7 +209,7 @@ export default function InvoiceShow() {
                                 className="inline-flex items-center gap-1 px-2 py-1 text-[11px] font-medium"
                             >
                                 <span className="inline-block size-1.5 rounded-full bg-amber-500" />
-                                {invoice.stage === 'pending' ? 'Queued' : 'Processing'}
+                                Processing
                                 {sourceLabel ? ` · ${sourceLabel}` : ''}
                             </Badge>
                         ) : (
@@ -298,11 +223,29 @@ export default function InvoiceShow() {
                     {/* Left: raw document only */}
                     <div className="space-y-2">
                         <div className="relative aspect-4/3 w-full overflow-hidden rounded-md border border-dashed border-muted-foreground/40 bg-muted">
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <span className="text-xs text-muted-foreground">
-                                    Preview placeholder – embed PDF or image viewer here
-                                </span>
-                            </div>
+                            {previewRef.current.url ? (
+                                previewRef.current.filename
+                                    .toLowerCase()
+                                    .endsWith('.pdf') ? (
+                                    <iframe
+                                        src={previewRef.current.url}
+                                        className="h-full w-full"
+                                        title={previewRef.current.filename}
+                                    />
+                                ) : (
+                                    <img
+                                        src={previewRef.current.url}
+                                        alt={previewRef.current.filename}
+                                        className="h-full w-full object-contain"
+                                    />
+                                )
+                            ) : (
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <span className="text-xs text-muted-foreground">
+                                        {invoice.filename}
+                                    </span>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -311,15 +254,15 @@ export default function InvoiceShow() {
                         <section className="space-y-3">
                             <p className="text-sm font-semibold">Invoice summary</p>
                             <div className="grid gap-3 md:grid-cols-2">
-                                <SummaryFieldCard field={invoice.summary.invoiceNumber} />
-                                <SummaryFieldCard field={invoice.summary.invoiceDate} />
+                                <SummaryFieldCard field={summaryFields.invoiceNumber} />
+                                <SummaryFieldCard field={summaryFields.invoiceDate} />
                             </div>
                             <div className="grid gap-3 md:grid-cols-2">
                                 <SummaryFieldCard
-                                    field={invoice.summary.total}
+                                    field={summaryFields.total}
                                     emphasis="total"
                                 />
-                                <SummaryFieldCard field={invoice.summary.tax} />
+                                <SummaryFieldCard field={summaryFields.tax} />
                             </div>
                         </section>
 

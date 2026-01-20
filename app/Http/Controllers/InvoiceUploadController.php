@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Enums\InvoiceStatus;
+use App\Jobs\ProcessInvoiceDocument;
 use App\Models\InvoiceDocument;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class InvoiceUploadController extends Controller
 {
@@ -40,8 +40,7 @@ class InvoiceUploadController extends Controller
             'tax_amount'     => null,
         ]);
 
-        // TODO: Dispatch background job that uses ProcessInvoiceWithOcrSpace
-        // to run OCR and update this record with extracted fields.
+        ProcessInvoiceDocument::dispatch((string) $document->getKey());
 
         return redirect()->route('invoice.show', ['id' => $document->getKey()]);
     }
